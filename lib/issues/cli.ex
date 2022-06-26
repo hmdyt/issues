@@ -41,9 +41,13 @@ defmodule Issues.CLI do
     """
     System.halt(0)
   end
-  def process({user, project, _count}) do
+  def process({user, project, count}) do
     Issues.GithubIssues.fetch(user, project)
     |> decode_response
+    |> sort_into_decending_order
+    |> last(count)
+    |> print(["number", "created_at", "title"])
+
   end
   def decode_response({:ok, body}), do: body
   def decode_response({:error, error}) do
@@ -57,4 +61,22 @@ defmodule Issues.CLI do
       fn i1, i2 -> i1["created_at"] >= i2["created_at"] end
     )
   end
+
+  def last(list, count) do
+    list |> Enum.take(count) |> Enum.reverse
+  end
+
+  def format(rows, headers) do
+    for header <- headers do
+      for row <- rows, do: printable(row[header])
+    end
+  end
+
+  def print(rows, headers) do
+    headers |> IO.puts
+    format(rows, headers) |> IO.puts
+  end
+
+  def printable(str) when is_binary(str), do: str
+  def printable(str), do: to_string(str)
 end
