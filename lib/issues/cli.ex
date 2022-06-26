@@ -66,15 +66,16 @@ defmodule Issues.CLI do
     list |> Enum.take(count) |> Enum.reverse
   end
 
-  def format(rows, headers) do
-    for header <- headers do
-      for row <- rows, do: printable(row[header])
-    end
+  def print(rows, headers) do
+    headers |> Enum.join("\t") |> IO.puts
+    rows |> Enum.map(fn row -> print_row(row, headers) end)
   end
 
-  def print(rows, headers) do
-    headers |> IO.puts
-    format(rows, headers) |> IO.puts
+  def print_row(row, headers) do
+    headers
+    |> Enum.map(fn header -> row[header] end)
+    |> Enum.join("\t")
+    |> IO.puts
   end
 
   def printable(str) when is_binary(str), do: str
