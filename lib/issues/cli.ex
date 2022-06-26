@@ -50,4 +50,11 @@ defmodule Issues.CLI do
     IO.puts "Error fetching from Github: #{error["message"]}"
     System.halt(2)
   end
+
+  def sort_into_decending_order(list_of_issues) do
+    list_of_issues
+    |> Enum.sort(
+      fn i1, i2 -> i1["created_at"] >= i2["created_at"] end
+    )
+  end
 end
